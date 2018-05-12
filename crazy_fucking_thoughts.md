@@ -3,7 +3,7 @@
  1 for tne passenger  
  2 for the cargo  
  3 for the building-1  
- 4 for the building-2
+ 4 for the building-2  
  5 for the building-3  
 
  ## Transformation Principles
@@ -13,4 +13,3 @@
  4.building-1 refers to the buildings like dormitary which have the most people out in the morning.  
  5.building-2 refers to the buildings like canteen which have the most people out after each meals(lunchtime and dinner time particularly)  
  6.building-3 refers to the buildings like teaching-building and office-building which have the most people out in the evening.  
- 
