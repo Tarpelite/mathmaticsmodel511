@@ -1,8 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 from PIL import Image
-im = Image.open("map1.jpeg")
-gray = im.convert("L")
-gray.show()
-values = gray.split()
-print(values)
+im = Image.open('map1.jpeg');
