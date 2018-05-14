@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import pylab
+import time
 statues = ['road', 'passenger', 'cargo', 'building-1', 'building-2', 'building-3', 'others']
 size = 100
 
@@ -73,6 +74,25 @@ class CellMap:
             for j in range(19, 69):
                 self.Map[i][j].statue = 5
 
+        for i in range(50, 82):
+            for j in range(72, 95):
+                self.Map[i][j].statue = 5
+
+        for i in range(58, 59):
+            for j in range(59, 90):
+                self.Map[i][j].statue = 0
+
+        for i in range(64, 65):
+            for j in range(59, 85):
+                self.Map[i][j].statue = 0
+        for i in range(50, 74):
+            for j in range(58, 59):
+                self.Map[i][j].statue = 0
+        for i in range(66, 74):
+            for j in range(49, 58):
+                self.Map[i][j].statue = 0
+
+
     def init_to_shahe(self):
         self.init_shahe_road()
         self.init_shahe_building1()
@@ -143,7 +163,7 @@ class CellMap:
                 return res
 
 
-    def show_passenger(self):
+    def show_passenger(self, time):
         statue_map = np.empty([size, size], dtype=int)
         for i in range(size):
             for j in range(size):
@@ -153,77 +173,136 @@ class CellMap:
                     print('i:', i)
                     print('j:', j)
                     print(type(self.Map[i][j]))
-
+        plt.title('Now is '+str(time)+':00')
         plt.imshow(statue_map)
+        plt.savefig('results/' + str(time)+':00.png')
 
     def passenger_rule(self, time):
-        p1 = 0.8 - time*0.2
-        p2 = 0.3 - time*0.1
-        p3 = 0.05*(time-6)
-        p4 = 0.5 #the possibility people move
-        duration = 3 ##people at most stay outside for 3 hours
-        '''
-        
-        p1 refers to the possibility people get out of the dormitory,
-        p2 refers to the possibility people get out of the canteen,
-        p3 refers to the possibility people get out of the teaching-building and laboratory.
-        During 6.a.m and 8.a.m ,students will get out from the dormitory, so
-        p1 will get dramatically big.
-        Also a small part of students will have breakfast which contributes to
-        p2
-        '''
-        if True: #just practice
-        #if time in range(6, 9):
-            for i in range(0, size):
-                for j in range(0, size):
-                    res = self.neighbour(i, j)
-                    seed = random.random()
-                    p = 0
-                    #people get out from building-1
-                    if self.Map[i][j].statue == 3:
-                        p = p1
-                    #people get out from bulding-2
-                    elif self.Map[i][j].statue == 4:
-                        p = p2
-                    #people get out from building-3
-                    elif self.Map[i][j].statue == 5:
-                        p = p3
+        p1 = 0.02
+        p2 = 0.02
+        p3 = 0.02
+        p4 = 0.4
+        duration = 2
 
-                    if p > 0:
-                        for cell in res:
-                            if cell.statue == 0:
-                                if seed < p1:
-                                    cell.statue = 1
-                                    cell.time_cnt += 1
-
+        if time in range(5, 8):
             '''
-            people tends to move and when they have enough of the outside,
-            they will get into the building,
-            during this time,
-            teaching-building and laboratory are the first choices
-        
-             '''
 
+                p1 refers to the possibility people get out of the dormitory,
+                p2 refers to the possibility people get out of the canteen,
+                p3 refers to the possibility people get out of the teaching-building and laboratory.
+                During 6.a.m and 8.a.m ,students will get out from the dormitory, so
+                p1 will get dramatically big.
+                Also a small part of students will have breakfast which contributes to
+                p2
+                '''
+            p1 = 0.5 - (time-6)*0.1
+            p2 = 0.3 - (time-6)*0.1
+            p3 = 0.05*(time-6)
+            p4 = 0.5 #the possibility people move
+            duration = 2 ##people at most stay outside for 2 hours
+
+
+        elif time in range(8, 12):
+            '''
+            During the time of 9.a.m to 11.a.m, people tends to gather around
+            building-3
+            '''
+
+            p1 = 0.05
+            p2 = 0.5 + (time - 8) * 0.1
+            p3 = 0.7
+            p4 = 0.5
+            duration = 2
+        elif time in range(12, 14):
+            '''
+            people tends to get out of the canteen and dormitory,
+            
+            '''
+            p1 = 0.5 - (time-11)*0.2
+            p2 = 0.4 - (time-12)*0.2
+            p3 = 0.5 - (time -11)*0.1
+            p4 = 0.5
+            duration = 2
+            '''
+        elif time in range(0, 5) or time in range(22, 24):
+            p_delete = 0.2
+            seed = random.random()
+            print(seed)
             for i in range(size):
                 for j in range(size):
-                    if self.Map[i][j].statue == 1:
-                        if self.Map[i][j].time_cnt >= duration:
-                            self.Map[i][j].statue = 0
-                            self.Map[i][j].time_cnt = 0
-                        else:
-                            seed = random.random()
-                            res = self.neighbour(i, j)
-                            target_list = []
-                            for cell in res:
-                                if cell.statue == 0:
-                                    target_list.append(cell)
-                            if len(target_list)>0:
-                                target = random.choice(target_list)
-                                if seed < p4:
-                                    target.statue = 1
-                                    target.time_cnt = self.Map[i][j].time_cnt
-                                    self.Map[i][j].statue = 0
-                                    self.Map[i][j].time_cnt = 0
+                    if seed < p_delete and self.Map[i][j].statue == 1:
+                        print('i:', i)
+                        print('j:', j)
+                        self.Map[i][j].statue = 0
+                        self.Map[i][j].cnt = 0
+            '''
+
+        elif time in range(17, 22):
+            '''
+            people get back to dormitory
+            '''
+            p1 = 0.1
+            p2 = 0.1
+            p3 = 0.5 - (time-16)*0.08
+            p4 = 0.5
+            duration = 2
+        else:
+            '''
+            other time the people very few
+            '''
+            p1 = 0.02
+            p2 = 0.02
+            p3 = 0.02
+            p4 = 0.4
+            duration = 2
+
+
+        for i in range(0, size):
+            for j in range(0, size):
+                res = self.neighbour(i, j)
+                seed = random.random()
+                p = 0
+                #people get out from building-1
+                if self.Map[i][j].statue == 3:
+                    p = p1
+                #people get out from bulding-2
+                elif self.Map[i][j].statue == 4:
+                    p = p2
+                #people get out from building-3
+                elif self.Map[i][j].statue == 5:
+                    p = p3
+
+                if p > 0:
+                    for cell in res:
+                        if cell.statue == 0:
+                            if seed < p1:
+                                cell.statue = 1
+                                cell.time_cnt += 1
+        for i in range(size):
+            for j in range(size):
+                if self.Map[i][j].statue == 1:
+                    if self.Map[i][j].time_cnt >= duration:
+                        self.Map[i][j].statue = 0
+                        self.Map[i][j].time_cnt = 0
+                    else:
+                        seed = random.random()
+                        res = self.neighbour(i, j)
+                        target_list = []
+                        for cell in res:
+                            if cell.statue == 0:
+                                target_list.append(cell)
+                        if len(target_list)>0:
+                            target = random.choice(target_list)
+                            if seed < p4:
+                                target.statue = 1
+                                target.time_cnt = self.Map[i][j].time_cnt
+                                self.Map[i][j].statue = 0
+                                self.Map[i][j].time_cnt = 0
+
+
+
+
+
 
 
 
@@ -234,10 +313,13 @@ class CellMap:
 if __name__ == '__main__':
     game = CellMap(size)
     game.init_to_shahe()
-    for i in range(0, 10):
+    #plt.ion()
+    for i in range(0, 25):
         game.passenger_rule(i)
-        game.show_passenger()
+        game.show_passenger(i)
+        #time.sleep(0.5)
         plt.show()
+    #plt.ioff()
 
 
 
