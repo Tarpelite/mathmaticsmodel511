@@ -82,8 +82,12 @@ class CellMap:
             for j in range(59, 90):
                 self.Map[i][j].statue = 0
 
+        for i in range(50, 58):
+            for j in range(89, 90):
+                self.Map[i][j].statue = 0
+
         for i in range(64, 65):
-            for j in range(59, 85):
+            for j in range(59, 70):
                 self.Map[i][j].statue = 0
         for i in range(50, 74):
             for j in range(58, 59):
